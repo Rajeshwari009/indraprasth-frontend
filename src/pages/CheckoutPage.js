@@ -18,14 +18,24 @@ const SHIPPING_COST = 99;
 /* ─── Payment method definitions ──────────────────────── */
 const PAYMENT_METHODS = [
   {
+    id: 'cod',
+    label: 'Cash on Delivery',
+    desc: 'Pay when your order arrives — simple & hassle-free',
+    icon: '🏠',
+    color: 'from-amber-500 to-orange-600',
+    apps: [],
+    tag: 'Available now',
+    enabled: true,
+  },
+  {
     id: 'upi',
     label: 'UPI',
-    desc: 'Pay via any UPI app instantly',
+    desc: 'GPay, PhonePe, Paytm & more',
     icon: '⚡',
     color: 'from-purple-500 to-indigo-600',
     apps: ['GPay', 'PhonePe', 'Paytm', 'BHIM'],
-    appColors: ['#00B9F1', '#5F259F', '#00BAF2', '#002970'],
-    tag: 'Recommended',
+    tag: 'Coming soon',
+    enabled: false,
   },
   {
     id: 'razorpay',
@@ -34,8 +44,8 @@ const PAYMENT_METHODS = [
     icon: '🏦',
     color: 'from-blue-500 to-blue-700',
     apps: ['Visa', 'MC', 'RuPay', 'NetBanking'],
-    appColors: ['#1A1F71', '#EB001B', '#FF6600', '#2196F3'],
-    tag: null,
+    tag: 'Coming soon',
+    enabled: false,
   },
   {
     id: 'wallets',
@@ -44,8 +54,8 @@ const PAYMENT_METHODS = [
     icon: '👛',
     color: 'from-teal-500 to-green-600',
     apps: ['Paytm', 'PhonePe', 'AmazonPay', 'Freecharge'],
-    appColors: ['#00BAF2', '#5F259F', '#FF9900', '#E91E8C'],
-    tag: null,
+    tag: 'Coming soon',
+    enabled: false,
   },
   {
     id: 'stripe',
@@ -54,18 +64,8 @@ const PAYMENT_METHODS = [
     icon: '💳',
     color: 'from-gray-600 to-gray-800',
     apps: [],
-    appColors: [],
-    tag: null,
-  },
-  {
-    id: 'cod',
-    label: 'Cash on Delivery',
-    desc: 'Pay when your order arrives',
-    icon: '🏠',
-    color: 'from-amber-500 to-orange-600',
-    apps: [],
-    appColors: [],
-    tag: '+₹30 COD charge',
+    tag: 'Coming soon',
+    enabled: false,
   },
 ];
 
@@ -206,7 +206,7 @@ const UPIForm = ({ onPay, processing, grandTotal, onBack }) => {
 
 /* ─── Payment Step ─────────────────────────────────────── */
 const PaymentStep = ({ form, cart, total, shipping, grandTotal, onBack, onSuccess }) => {
-  const [selectedMethod, setSelectedMethod] = useState('upi');
+  const [selectedMethod, setSelectedMethod] = useState('cod');
   const [processing, setProcessing] = useState(false);
   const { clearCart } = useCart();
 
@@ -312,7 +312,7 @@ const PaymentStep = ({ form, cart, total, shipping, grandTotal, onBack, onSucces
       await orderAPI.confirmCOD(orderId);
       clearCart();
       toast.success('Order placed! Pay on delivery.');
-      onSuccess(orderId);
+      onSuccess(orderId, 'cod');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to place order');
       setProcessing(false);
@@ -321,93 +321,102 @@ const PaymentStep = ({ form, cart, total, shipping, grandTotal, onBack, onSucces
 
   return (
     <div className="space-y-5">
-      {/* Method selector */}
-      <div className="space-y-3">
-        {PAYMENT_METHODS.map((method) => (
-          <motion.button key={method.id} type="button" whileTap={{ scale: 0.99 }}
-            onClick={() => setSelectedMethod(method.id)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all ${
-              selectedMethod === method.id
-                ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-200 dark:shadow-blue-900/30'
-                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-900'
-            }`}>
-            {/* Radio */}
-            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-              selectedMethod === method.id ? 'border-blue-600' : 'border-gray-300 dark:border-gray-600'
-            }`}>
-              {selectedMethod === method.id && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
-            </div>
-
-            {/* Icon */}
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center text-xl shrink-0 shadow-sm`}>
-              {method.icon}
-            </div>
-
-            {/* Text */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-gray-900 dark:text-white text-sm">{method.label}</span>
-                {method.tag && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    method.tag === 'Recommended'
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                  }`}>{method.tag}</span>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{method.desc}</p>
-              {method.apps.length > 0 && (
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                  {method.apps.map((app) => (
-                    <span key={app} className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-lg font-medium">
-                      {app}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Chevron */}
-            <ChevronRight size={16} className={`shrink-0 transition-transform ${selectedMethod === method.id ? 'text-blue-600 rotate-90' : 'text-gray-300 dark:text-gray-600'}`} />
-          </motion.button>
-        ))}
+      <div className="rounded-2xl border border-dashed border-amber-200 dark:border-amber-800/50 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 px-4 py-3.5 text-center">
+        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+          ✨ Online payments are on the way!
+        </p>
+        <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1 leading-relaxed">
+          We&apos;re putting the finishing touches on UPI, cards & wallets — stay tuned!
+          For now, place your order easily with <span className="font-semibold">Cash on Delivery (COD)</span>.
+        </p>
       </div>
 
-      {/* Inline sub-forms */}
-      <AnimatePresence mode="wait">
-        {selectedMethod === 'stripe' && (
-          <motion.div key="stripe" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-            <Elements stripe={stripePromise}>
-              <StripeCardForm onPay={handleStripe} processing={processing} grandTotal={grandTotal} onBack={onBack} />
-            </Elements>
-            <p className="text-xs text-center text-gray-400 mt-2">
-              Test card: 4242 4242 4242 4242 | Any future date | Any CVC
-            </p>
-          </motion.div>
-        )}
-        {selectedMethod === 'upi' && (
-          <motion.div key="upi" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-            <UPIForm onPay={() => handleRazorpay()} processing={processing} grandTotal={grandTotal} onBack={onBack} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Method selector */}
+      <div className="space-y-3">
+        {PAYMENT_METHODS.map((method) => {
+          const isSelected = selectedMethod === method.id;
+          const isDisabled = !method.enabled;
 
-      {/* Pay button for non-inline methods */}
-      {(selectedMethod === 'razorpay' || selectedMethod === 'wallets' || selectedMethod === 'cod') && (
+          return (
+            <motion.button
+              key={method.id}
+              type="button"
+              whileTap={isDisabled ? undefined : { scale: 0.99 }}
+              disabled={isDisabled}
+              onClick={() => method.enabled && setSelectedMethod(method.id)}
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all ${
+                isDisabled
+                  ? 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 opacity-60 cursor-not-allowed'
+                  : isSelected
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-200 dark:shadow-blue-900/30'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-900'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                isSelected && method.enabled ? 'border-blue-600' : 'border-gray-300 dark:border-gray-600'
+              }`}>
+                {isSelected && method.enabled && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
+              </div>
+
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center text-xl shrink-0 shadow-sm ${isDisabled ? 'grayscale' : ''}`}>
+                {method.icon}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-gray-900 dark:text-white text-sm">{method.label}</span>
+                  {method.id === 'cod' && (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      COD
+                    </span>
+                  )}
+                  {method.tag && (
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      method.enabled
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+                    }`}>{method.tag}</span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{method.desc}</p>
+                {isDisabled && (
+                  <p className="text-xs text-violet-600 dark:text-violet-400 mt-1 font-medium">
+                    🚧 Under progress — launching soon!
+                  </p>
+                )}
+                {method.apps.length > 0 && (
+                  <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                    {method.apps.map((app) => (
+                      <span key={app} className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-lg font-medium">
+                        {app}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {!isDisabled && (
+                <ChevronRight size={16} className={`shrink-0 transition-transform ${isSelected ? 'text-blue-600 rotate-90' : 'text-gray-300 dark:text-gray-600'}`} />
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* COD checkout */}
+      {selectedMethod === 'cod' && (
         <div className="flex gap-3 pt-2">
           <button onClick={onBack} className="btn-outline flex items-center gap-2 px-5">
             <ArrowLeft size={16} /> Back
           </button>
           <button
-            onClick={selectedMethod === 'cod' ? handleCOD : () => handleRazorpay()}
+            onClick={handleCOD}
             disabled={processing}
             className="flex-1 btn-primary flex items-center justify-center gap-2"
           >
             {processing
               ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</>
-              : selectedMethod === 'cod'
-                ? <><Truck size={16} /> Place Order (COD) — ₹{codTotal.toLocaleString('en-IN')}</>
-                : <><Lock size={15} /> Pay ₹{grandTotal.toLocaleString('en-IN')}</>
+              : <><Truck size={16} /> Place Order (COD) — ₹{codTotal.toLocaleString('en-IN')}</>
             }
           </button>
         </div>
@@ -415,7 +424,7 @@ const PaymentStep = ({ form, cart, total, shipping, grandTotal, onBack, onSucces
 
       <div className="flex items-center justify-center gap-4 pt-2">
         <Shield size={14} className="text-green-500" />
-        <p className="text-xs text-gray-400">256-bit SSL secured · 100% safe & encrypted payments</p>
+        <p className="text-xs text-gray-400">Secure checkout · Cash on Delivery available nationwide</p>
       </div>
     </div>
   );

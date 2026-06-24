@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, School, ShoppingBag, Users,
   FileText, LogOut, Menu, X, Plus, Edit2, Trash2,
   Search, Upload, Eye, EyeOff, ChevronDown, Sun, Moon,
-  TrendingUp, DollarSign, CheckCircle, Clock
+  TrendingUp, DollarSign, CheckCircle, Clock, Phone,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -13,6 +13,8 @@ import { productAPI, schoolAPI, orderAPI, bulkOrderAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 
 const BASE_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+
+const getOrderPhone = (order) => order.guestInfo?.phone || order.user?.phone;
 
 /* ─── Sidebar ─────────────────────────────────────────── */
 const Sidebar = ({ open, setOpen }) => {
@@ -151,6 +153,9 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {order.user?.name || order.guestInfo?.name || 'Guest'}
                 </p>
+                {getOrderPhone(order) && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">{getOrderPhone(order)}</p>
+                )}
                 <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString('en-IN')}</p>
               </div>
               <div className="flex items-center gap-3">
@@ -740,6 +745,12 @@ const OrdersPanel = () => {
                   <p className="font-semibold text-gray-900 dark:text-white text-sm">
                     {order.user?.name || order.guestInfo?.name || 'Guest Order'}
                   </p>
+                  {getOrderPhone(order) && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-0.5">
+                      <Phone size={11} className="shrink-0" />
+                      {getOrderPhone(order)}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
               </div>
@@ -760,6 +771,12 @@ const OrdersPanel = () => {
                         <p className="text-xs text-gray-400 mb-1">Customer</p>
                         <p className="font-medium text-gray-900 dark:text-white">{order.user?.name || order.guestInfo?.name}</p>
                         <p className="text-gray-500 dark:text-gray-400">{order.user?.email || order.guestInfo?.email}</p>
+                        {getOrderPhone(order) && (
+                          <a href={`tel:${getOrderPhone(order)}`} className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium mt-1 hover:underline">
+                            <Phone size={13} />
+                            {getOrderPhone(order)}
+                          </a>
+                        )}
                       </div>
                       <div>
                         <p className="text-xs text-gray-400 mb-1">Shipping Address</p>
