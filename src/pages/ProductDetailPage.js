@@ -122,11 +122,10 @@ const ProductDetailPage = () => {
             <div className="flex-1 aspect-square rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-xl border border-gray-100 dark:border-gray-800">
               <ProductImage
                 key={mainImage}
-                src={images[mainImage] || images[0]}
+                src={images[mainImage] ?? images[0]}
                 alt={name}
                 category={category}
                 name={name}
-                fallbackIndex={mainImage}
                 className="w-full h-full"
                 imgClassName="w-full h-full object-cover"
               />
