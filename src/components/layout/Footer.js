@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail } from 'lucide-react';
 import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import PolicyModal from '../common/PolicyModal';
-import BrandLogo from '../common/BrandLogo';
 import { SITE } from '../../config/site';
 
 const POLICY_LINKS = [
@@ -22,7 +21,11 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             {/* Brand */}
             <div>
-              <BrandLogo className="h-14 w-auto mb-4" showText={false} />
+              <img
+                src={SITE.footerLogo}
+                alt={`${SITE.name} - ${SITE.tagline}`}
+                className="h-16 w-auto mb-4 object-contain"
+              />
               <p className="text-sm text-gray-400 leading-relaxed">
                 The Uniform Icons — trusted for school, college, hospital & corporate uniforms since 1975.
               </p>

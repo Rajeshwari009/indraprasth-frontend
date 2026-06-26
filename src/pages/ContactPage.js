@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import OurOutlets from '../components/common/OurOutlets';
 import { SITE } from '../config/site';
 
 const BUSINESS_HOURS = [
@@ -261,8 +260,6 @@ const ContactPage = () => {
           </div>
         </div>
       </section>
-
-      <OurOutlets />
     </div>
   );
 };

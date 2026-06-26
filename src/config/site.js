@@ -2,6 +2,7 @@ export const SITE = {
   name: 'Indraprasth-Uniforms',
   tagline: 'The Uniform Icons',
   logo: '/images/logo.png',
+  footerLogo: '/images/footer-logo.png',
   outletsBanner: '/images/outlets-banner.png',
   email: 'indraprasthuniforms@gmail.com',
   phone: '9425605685',

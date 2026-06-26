@@ -17,9 +17,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  // Only use transparent style on home page at the very top
-  const isHome = pathname === '/';
-  const isTransparent = isHome && !scrolled;
+  // Hero uses pure white — header always matches logo background
+  const isTransparent = false;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

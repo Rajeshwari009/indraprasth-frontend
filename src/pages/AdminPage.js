@@ -513,18 +513,32 @@ const ProductsPanel = () => {
 /* ─── School Modal ────────────────────────────────────── */
 const SchoolModal = ({ school, onClose, onSave }) => {
   const [form, setForm] = useState({
-    name: school?.name || '', shortName: school?.shortName || '',
-    description: school?.description || '', city: school?.city || '',
-    isActive: school?.isActive ?? true, order: school?.order || 0,
+    name: school?.name || '',
+    shortName: school?.shortName || '',
+    description: school?.description || '',
+    city: school?.city || '',
+    isActive: school?.isActive ?? true,
+    order: school?.order || 0,
     logo: school?.logo || '',
   });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [showUrlInput, setShowUrlInput] = useState(Boolean(school?.logo && !school.logo.startsWith('/uploads')));
   const [loading, setLoading] = useState(false);
 
   const handleFile = (e) => {
     const f = e.target.files[0];
-    if (f) { setFile(f); setPreview(URL.createObjectURL(f)); }
+    if (f) {
+      setFile(f);
+      setPreview(URL.createObjectURL(f));
+      setShowUrlInput(false);
+    }
+  };
+
+  const clearLogo = () => {
+    setFile(null);
+    setPreview(null);
+    setForm((p) => ({ ...p, logo: '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -532,7 +546,10 @@ const SchoolModal = ({ school, onClose, onSave }) => {
     setLoading(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      Object.entries(form).forEach(([k, v]) => {
+        if (k === 'logo' && file) return;
+        fd.append(k, v);
+      });
       if (file) fd.append('logo', file);
       if (school) {
         await schoolAPI.update(school._id, fd);
@@ -554,68 +571,170 @@ const SchoolModal = ({ school, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
-          <h2 className="text-lg font-display font-bold text-gray-900 dark:text-white">{school ? 'Edit School' : 'Add School'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-500"><X size={20} /></button>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl"
+      >
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+              <School size={20} className="text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-display font-bold text-gray-900 dark:text-white">
+                {school ? 'Edit School' : 'Add School'}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {school ? 'Update school details and logo' : 'Add a new partner school to the store'}
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-500">
+            <X size={20} />
+          </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
-              {logoSrc ? <img src={logoSrc} alt="" className="w-full h-full object-contain p-2" /> : <Upload size={24} className="text-gray-400" />}
-            </div>
-            <label className="cursor-pointer text-sm text-blue-600 dark:text-blue-400 hover:underline">
-              Upload Logo
-              <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
-            </label>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Or paste logo URL</label>
-              <input value={form.logo} onChange={e => setForm(p => ({ ...p, logo: e.target.value }))}
-                className="input-field text-sm py-2" placeholder="https://..." />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">School Name *</label>
-              <input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                className="input-field" placeholder="Delhi Public School" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Short Name *</label>
-              <input required value={form.shortName} onChange={e => setForm(p => ({ ...p, shortName: e.target.value.toUpperCase() }))}
-                className="input-field" placeholder="DPS" maxLength={10} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">City</label>
-              <input value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))}
-                className="input-field" placeholder="New Delhi" />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
-              <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                rows={2} className="input-field resize-none text-sm" placeholder="About the school..." />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Display Order</label>
-              <input type="number" value={form.order} onChange={e => setForm(p => ({ ...p, order: Number(e.target.value) }))}
-                className="input-field" placeholder="0" />
-            </div>
-            <div className="flex items-end pb-1">
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <div onClick={() => setForm(p => ({ ...p, isActive: !p.isActive }))}
-                  className={`w-11 h-6 rounded-full transition-colors relative ${form.isActive ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
-                </div>
-                <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row gap-6">
+            {/* Logo upload */}
+            <div className="sm:w-44 shrink-0">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">School Logo</label>
+              <label className="group relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 cursor-pointer hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-all overflow-hidden">
+                {logoSrc ? (
+                  <img src={logoSrc} alt="Logo preview" className="w-full h-full object-contain p-3" />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 p-4 text-center">
+                    <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center">
+                      <Upload size={22} className="text-gray-400 group-hover:text-purple-500 transition-colors" />
+                    </div>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                      Click to upload
+                    </span>
+                    <span className="text-[10px] text-gray-400">PNG, JPG up to 5MB</span>
+                  </div>
+                )}
+                <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
               </label>
+              {logoSrc && (
+                <button
+                  type="button"
+                  onClick={clearLogo}
+                  className="mt-2 w-full text-xs text-red-500 hover:text-red-600 font-medium"
+                >
+                  Remove logo
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowUrlInput((v) => !v)}
+                className="mt-3 w-full text-xs text-blue-600 dark:text-blue-400 hover:underline text-left"
+              >
+                {showUrlInput ? 'Hide URL option' : 'Or paste logo URL'}
+              </button>
+              {showUrlInput && (
+                <input
+                  value={form.logo}
+                  onChange={(e) => {
+                    setFile(null);
+                    setPreview(null);
+                    setForm((p) => ({ ...p, logo: e.target.value }));
+                  }}
+                  className="input-field text-sm py-2 mt-2"
+                  placeholder="https://..."
+                />
+              )}
+            </div>
+
+            {/* Main fields */}
+            <div className="flex-1 space-y-4 min-w-0">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">School Name *</label>
+                <input
+                  required
+                  value={form.name}
+                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                  className="input-field"
+                  placeholder="Delhi Public School"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Short Name *</label>
+                  <input
+                    required
+                    value={form.shortName}
+                    onChange={(e) => setForm((p) => ({ ...p, shortName: e.target.value.toUpperCase() }))}
+                    className="input-field uppercase"
+                    placeholder="DPS"
+                    maxLength={10}
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Shown on cards (max 10 chars)</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">City</label>
+                  <input
+                    value={form.city}
+                    onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+                    className="input-field"
+                    placeholder="Bhopal"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                  rows={3}
+                  className="input-field resize-none text-sm"
+                  placeholder="Brief description shown on the school card..."
+                />
+              </div>
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
+
+          {/* Settings row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Display Order</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.order}
+                  onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
+                  className="input-field w-24 py-2"
+                  placeholder="0"
+                />
+              </div>
+              <p className="text-xs text-gray-400 hidden sm:block pt-6">Lower numbers appear first</p>
+            </div>
+            <label className="flex items-center gap-3 cursor-pointer sm:pt-5">
+              <div
+                role="switch"
+                aria-checked={form.isActive}
+                onClick={() => setForm((p) => ({ ...p, isActive: !p.isActive }))}
+                className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${form.isActive ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Active</span>
+                <span className="text-xs text-gray-400">{form.isActive ? 'Visible on website' : 'Hidden from shop'}</span>
+              </div>
+            </label>
+          </div>
+
+          <div className="flex gap-3 pt-2 sticky bottom-0 bg-white dark:bg-gray-900 pb-1">
             <button type="button" onClick={onClose} className="btn-outline flex-1">Cancel</button>
             <button type="submit" disabled={loading} className="btn-primary flex-1 flex items-center justify-center gap-2">
-              {loading ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Plus size={16} />}
-              {school ? 'Update' : 'Create'}
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Plus size={16} />
+              )}
+              {school ? 'Save Changes' : 'Add School'}
             </button>
           </div>
         </form>

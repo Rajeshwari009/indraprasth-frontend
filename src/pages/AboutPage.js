@@ -80,7 +80,7 @@ const AboutPage = () => (
               {[
                 { value: '500+', label: 'School Partners', icon: GraduationCap, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' },
                 { value: '50K+', label: 'Happy Students', icon: Users, color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' },
-                { value: '15+', label: 'Years of Trust', icon: Award, color: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
+                { value: '50+', label: 'Years of Trust', icon: Award, color: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
                 { value: '200+', label: 'Artisans Employed', icon: Heart, color: 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400' },
               ].map(({ value, label, icon: Icon, color }) => (
                 <div key={label} className={`${color} rounded-2xl p-5 flex flex-col gap-3`}>

@@ -8,7 +8,6 @@ import {
 import SchoolCard from '../components/common/SchoolCard';
 import ProductCard from '../components/common/ProductCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import OurOutlets from '../components/common/OurOutlets';
 import { schoolAPI, productAPI } from '../utils/api';
 
 /* ── Animation helpers ── */
@@ -97,14 +96,14 @@ const HomePage = () => {
     { value: '500+', label: 'School Partners', icon: GraduationCap },
     { value: '50,000+', label: 'Happy Students', icon: Users },
     { value: '200+', label: 'Uniform Styles', icon: Package },
-    { value: '15+', label: 'Years of Trust', icon: Award },
+    { value: '50+', label: 'Years of Trust', icon: Award },
   ];
 
   return (
     <div className="min-h-screen">
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-blue-950">
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
         {/* Background video */}
         <video
           className="absolute inset-0 w-full h-full object-cover"
@@ -119,19 +118,8 @@ const HomePage = () => {
           <source src="/videos/hero-uniform.mp4" type="video/mp4" />
         </video>
 
-        {/* Dark overlay for readable text */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-950/85 via-blue-900/75 to-indigo-900/70" />
-        <div className="absolute inset-0 bg-black/25" />
-
-        {/* Subtle grid */}
-        <div
-          className="absolute inset-0 opacity-[0.07] pointer-events-none"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
+        {/* Pure white overlay — matches logo / header background */}
+        <div className="absolute inset-0 bg-white/92" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="max-w-2xl">
@@ -149,10 +137,10 @@ const HomePage = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.7 }}
-              className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight drop-shadow-lg"
+              className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-gray-900 leading-tight drop-shadow-sm"
             >
               Premium School Uniforms{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-500">
                 for Every Student
               </span>
             </motion.h1>
@@ -161,7 +149,7 @@ const HomePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="mt-5 text-lg text-blue-200 leading-relaxed max-w-lg"
+              className="mt-5 text-lg text-gray-600 leading-relaxed max-w-lg"
             >
               Quality, comfort, and style — perfectly tailored uniforms for 500+ schools across India.
               Bulk orders welcome with exclusive institutional discounts.
@@ -176,7 +164,7 @@ const HomePage = () => {
               <Link to="/shop" className="btn-secondary flex items-center gap-2">
                 Shop Now <ArrowRight size={18} />
               </Link>
-              <Link to="/bulk-orders" className="btn-outline border-white text-white hover:bg-white hover:text-blue-900 flex items-center gap-2">
+              <Link to="/bulk-orders" className="btn-outline border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white flex items-center gap-2">
                 Bulk Orders <ChevronRight size={18} />
               </Link>
             </motion.div>
@@ -189,7 +177,7 @@ const HomePage = () => {
               className="flex flex-wrap gap-6 mt-10"
             >
               {[['✓', '500+ Schools'], ['✓', 'ISI Certified'], ['✓', 'Free Returns']].map(([icon, text]) => (
-                <div key={text} className="flex items-center gap-2 text-blue-200 text-sm">
+                <div key={text} className="flex items-center gap-2 text-gray-600 text-sm">
                   <span className="text-amber-400 font-bold">{icon}</span>
                   {text}
                 </div>
@@ -204,9 +192,9 @@ const HomePage = () => {
           transition={{ duration: 2, repeat: Infinity }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
         >
-          <span className="text-blue-300 text-xs font-medium">Scroll to explore</span>
-          <div className="w-5 h-8 border-2 border-white/30 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2 bg-white/60 rounded-full" />
+          <span className="text-gray-500 text-xs font-medium">Scroll to explore</span>
+          <div className="w-5 h-8 border-2 border-gray-400/50 rounded-full flex justify-center pt-2">
+            <div className="w-1 h-2 bg-gray-500/70 rounded-full" />
           </div>
         </motion.div>
       </section>
@@ -364,8 +352,6 @@ const HomePage = () => {
           </SectionWrapper>
         </div>
       </section>
-
-      <OurOutlets className="bg-gray-50 dark:bg-gray-900/50" />
     </div>
   );
 };
