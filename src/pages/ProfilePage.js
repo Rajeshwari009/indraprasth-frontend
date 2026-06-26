@@ -244,7 +244,7 @@ const ProfilePage = () => {
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) return toast.error('Image must be under 2MB');
+    if (file.size > 5 * 1024 * 1024) return toast.error('Image must be under 5MB');
     setAvatarLoading(true);
     try {
       const { data } = await authAPI.uploadAvatar(file);
