@@ -10,6 +10,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { orderAPI } from '../utils/api';
 import toast from 'react-hot-toast';
+import LocationPicker from '../components/common/LocationPicker';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
 const FREE_SHIPPING_THRESHOLD = 999;
@@ -82,25 +83,45 @@ const loadRazorpayScript = () =>
 
 /* ─── Address Step ─────────────────────────────────────── */
 const AddressStep = ({ form, setForm, onNext }) => {
+  const handleLocationChange = (place) => {
+    setForm((p) => ({
+      ...p,
+      lat: place.lat,
+      lng: place.lng,
+      locationLabel: place.label,
+      street: place.street || p.street,
+      city: place.city || p.city,
+      state: place.state || p.state,
+      pincode: place.pincode || p.pincode,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const required = ['name', 'email', 'phone', 'street', 'city', 'state', 'pincode'];
     if (required.some((f) => !form[f]?.trim())) return toast.error('Please fill all required fields');
+    if (!form.lat || !form.lng) return toast.error('Please search and select your delivery location on the map');
     if (!/^\d{6}$/.test(form.pincode)) return toast.error('Enter a valid 6-digit pincode');
     if (!/^\d{10}$/.test(form.phone)) return toast.error('Enter a valid 10-digit phone number');
     onNext();
   };
+
   const fields = [
     { key: 'name', label: 'Full Name', type: 'text', placeholder: 'Rahul Sharma', col: 2 },
     { key: 'email', label: 'Email', type: 'email', placeholder: 'rahul@example.com', col: 1 },
-    { key: 'phone', label: 'Phone', type: 'tel', placeholder: '9876543210', col: 1 },
-    { key: 'street', label: 'Street Address', type: 'text', placeholder: '123, MG Road', col: 2 },
-    { key: 'city', label: 'City', type: 'text', placeholder: 'New Delhi', col: 1 },
-    { key: 'state', label: 'State', type: 'text', placeholder: 'Delhi', col: 1 },
-    { key: 'pincode', label: 'Pincode', type: 'text', placeholder: '110024', col: 1 },
+    { key: 'phone', label: 'Phone', type: 'tel', placeholder: '9425605685', col: 1 },
+    { key: 'street', label: 'Street / House No.', type: 'text', placeholder: 'Flat 12, MG Road', col: 2 },
+    { key: 'city', label: 'City', type: 'text', placeholder: 'Bhopal', col: 1 },
+    { key: 'state', label: 'State', type: 'text', placeholder: 'Madhya Pradesh', col: 1 },
+    { key: 'pincode', label: 'Pincode', type: 'text', placeholder: '462001', col: 1 },
   ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <LocationPicker
+        value={form.lat ? { lat: form.lat, lng: form.lng, label: form.locationLabel } : null}
+        onChange={handleLocationChange}
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {fields.map(({ key, label, type, placeholder, col }) => (
           <div key={key} className={col === 2 ? 'sm:col-span-2' : ''}>
@@ -224,7 +245,15 @@ const PaymentStep = ({ form, cart, total, shipping, grandTotal, onBack, onSucces
   const createBaseOrder = async (paymentMethod) => {
     const { data } = await orderAPI.create({
       items: buildOrderItems(),
-      shippingAddress: { street: form.street, city: form.city, state: form.state, pincode: form.pincode },
+      shippingAddress: {
+        street: form.street,
+        city: form.city,
+        state: form.state,
+        pincode: form.pincode,
+        lat: form.lat,
+        lng: form.lng,
+        label: form.locationLabel,
+      },
       guestInfo: { name: form.name, email: form.email, phone: form.phone },
       paymentMethod,
     });
@@ -435,27 +464,33 @@ const ConfirmationStep = ({ orderId, paymentMethod }) => {
   const navigate = useNavigate();
   const isCOD = paymentMethod === 'cod';
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
-      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-        className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div className="flex flex-col items-center justify-center text-center w-full">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+        className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6"
+      >
         <CheckCircle size={48} className="text-green-500" />
       </motion.div>
-      <h2 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-2">Order Placed!</h2>
-      <p className="text-gray-500 dark:text-gray-400 mb-1">
-        {isCOD ? 'Your order is confirmed. Please keep cash ready on delivery.' : 'Payment received! Your uniforms are being processed.'}
+      <h2 className="font-display font-bold text-2xl md:text-3xl text-gray-900 dark:text-white mb-3">Order Placed!</h2>
+      <p className="text-gray-500 dark:text-gray-400 mb-2 max-w-md leading-relaxed">
+        {isCOD
+          ? 'Your order is confirmed. Please keep cash ready on delivery.'
+          : 'Payment received! Your uniforms are being processed.'}
       </p>
       {orderId && (
-        <p className="text-sm font-mono bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 inline-block my-5 text-gray-600 dark:text-gray-300">
+        <p className="text-sm font-mono bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2.5 text-gray-600 dark:text-gray-300 my-5">
           Order ID: {orderId}
         </p>
       )}
-      <div className="flex gap-3 justify-center">
-        <button onClick={() => navigate('/')} className="btn-outline">Back to Home</button>
-        <button onClick={() => navigate('/shop')} className="btn-primary flex items-center gap-2">
-          Shop More <ArrowRight size={16} />
+      <div className="flex flex-col sm:flex-row gap-3 justify-center w-full sm:w-auto mt-2">
+        <button type="button" onClick={() => navigate('/profile')} className="btn-primary flex items-center justify-center gap-2 px-6">
+          Track in My Profile
         </button>
+        <button type="button" onClick={() => navigate('/')} className="btn-outline px-6">Back to Home</button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -507,6 +542,18 @@ const CheckoutPage = () => {
           ))}
         </div>
 
+        {step === 2 ? (
+          <motion.div
+            key="confirm-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-xl mx-auto"
+          >
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 md:p-12 shadow-lg border border-gray-100 dark:border-gray-800 min-h-[420px] flex items-center justify-center">
+              <ConfirmationStep orderId={orderId} paymentMethod={paymentMethod} />
+            </div>
+          </motion.div>
+        ) : (
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main card */}
           <div className="lg:col-span-2">
@@ -533,18 +580,12 @@ const CheckoutPage = () => {
                     />
                   </motion.div>
                 )}
-                {step === 2 && (
-                  <motion.div key="confirm" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <ConfirmationStep orderId={orderId} paymentMethod={paymentMethod} />
-                  </motion.div>
-                )}
               </AnimatePresence>
             </div>
           </div>
 
           {/* Order Summary */}
-          {step < 2 && (
-            <div className="lg:col-span-1">
+          <div className="lg:col-span-1">
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 sticky top-24">
                 <h3 className="font-display font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <Package size={18} className="text-blue-600" /> Order Summary
@@ -591,8 +632,8 @@ const CheckoutPage = () => {
                 </div>
               </div>
             </div>
-          )}
         </div>
+        )}
       </div>
     </div>
   );

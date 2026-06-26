@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   MapPin, Phone, Mail, Clock, Send, CheckCircle, MessageSquare,
+  MessageCircle,
 } from 'lucide-react';
+import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import OurOutlets from '../components/common/OurOutlets';
+import { SITE } from '../config/site';
 
 const BUSINESS_HOURS = [
   { day: 'Monday – Friday', hours: '9:00 AM – 7:00 PM', open: true },
@@ -36,26 +40,29 @@ const ContactPage = () => {
     {
       icon: MapPin,
       title: 'Visit Us',
-      lines: ['123, Uniform Market,', 'Lajpat Nagar, New Delhi', 'Delhi – 110024'],
+      lines: [SITE.city, 'Multiple outlets across Bhopal'],
       color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20',
     },
     {
       icon: Phone,
-      title: 'Call Us',
-      lines: ['+91 98765 43210', '+91 11 2345 6789', 'Mon–Sat, 9 AM–7 PM'],
+      title: 'Customer Care',
+      lines: [`+91 ${SITE.phoneDisplay}`, 'WhatsApp Business available'],
+      href: `tel:+91${SITE.phone}`,
       color: 'text-green-600 bg-green-50 dark:bg-green-900/20',
     },
     {
       icon: Mail,
       title: 'Email Us',
-      lines: ['info@indraprasthuniform.com', 'bulk@indraprasthuniform.com', 'Usually replies in 24 hrs'],
+      lines: [SITE.email, 'Usually replies within 24 hrs'],
+      href: `mailto:${SITE.email}`,
       color: 'text-amber-600 bg-amber-50 dark:bg-amber-900/20',
     },
     {
-      icon: Clock,
-      title: 'Business Hours',
-      lines: ['Mon–Fri: 9 AM – 7 PM', 'Saturday: 9 AM – 6 PM', 'Sunday: Closed'],
-      color: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20',
+      icon: MessageCircle,
+      title: 'WhatsApp',
+      lines: [`+91 ${SITE.phoneDisplay}`, 'Order now via chat'],
+      href: `https://wa.me/${SITE.whatsapp}`,
+      color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20',
     },
   ];
 
@@ -83,25 +90,31 @@ const ContactPage = () => {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 -mt-8">
-            {contactCards.map((card, i) => (
+            {contactCards.map((card, i) => {
+              const CardWrapper = card.href ? 'a' : 'div';
+              const wrapperProps = card.href
+                ? { href: card.href, target: card.href.startsWith('http') ? '_blank' : undefined, rel: 'noopener noreferrer' }
+                : {};
+              return (
               <motion.div
                 key={card.title}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="card p-6"
               >
-                <div className={`w-12 h-12 ${card.color} rounded-2xl flex items-center justify-center mb-4`}>
-                  <card.icon size={22} />
-                </div>
-                <h3 className="font-display font-bold text-gray-900 dark:text-white mb-2">{card.title}</h3>
-                {card.lines.map((line, j) => (
-                  <p key={j} className={`text-sm ${j === card.lines.length - 1 ? 'text-gray-400 dark:text-gray-500 mt-1 text-xs' : 'text-gray-600 dark:text-gray-400'}`}>
-                    {line}
-                  </p>
-                ))}
+                <CardWrapper {...wrapperProps} className={`card p-6 block h-full ${card.href ? 'hover:shadow-lg transition-shadow' : ''}`}>
+                  <div className={`w-12 h-12 ${card.color} rounded-2xl flex items-center justify-center mb-4`}>
+                    <card.icon size={22} />
+                  </div>
+                  <h3 className="font-display font-bold text-gray-900 dark:text-white mb-2">{card.title}</h3>
+                  {card.lines.map((line, j) => (
+                    <p key={j} className={`text-sm ${j === card.lines.length - 1 ? 'text-gray-400 dark:text-gray-500 mt-1 text-xs' : 'text-gray-600 dark:text-gray-400'}`}>
+                      {line}
+                    </p>
+                  ))}
+                </CardWrapper>
               </motion.div>
-            ))}
+            );})}
           </div>
         </div>
       </section>
@@ -129,9 +142,9 @@ const ContactPage = () => {
                     <MapPin size={28} className="text-blue-700" />
                   </motion.div>
                   <div>
-                    <p className="text-white font-bold font-display">Indraprastha Uniforms</p>
-                    <p className="text-blue-200 text-sm">123, Uniform Market, Lajpat Nagar</p>
-                    <p className="text-blue-300 text-xs mt-1">New Delhi – 110024</p>
+                    <p className="text-white font-bold font-display">Indraprasth-Uniforms</p>
+                    <p className="text-blue-200 text-sm">{SITE.city}</p>
+                    <p className="text-blue-300 text-xs mt-1">+91 {SITE.phoneDisplay}</p>
                   </div>
                 </div>
                 {/* Pulsing rings */}
@@ -163,6 +176,17 @@ const ContactPage = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="flex gap-3">
+                <a href={SITE.facebook} target="_blank" rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
+                  <FaFacebookF size={16} /> Facebook
+                </a>
+                <a href={SITE.instagram} target="_blank" rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-semibold transition-colors">
+                  <FaInstagram size={16} /> Instagram
+                </a>
               </div>
             </motion.div>
 
@@ -237,6 +261,8 @@ const ContactPage = () => {
           </div>
         </div>
       </section>
+
+      <OurOutlets />
     </div>
   );
 };

@@ -26,11 +26,11 @@ export const POLICIES = {
       },
       {
         heading: 'Your Rights',
-        body: 'You may request access to, correction of, or deletion of your personal data by contacting us at info@indraprasthuniform.com. We will respond to valid requests within a reasonable timeframe as required by applicable law.',
+        body: 'You may request access to, correction of, or deletion of your personal data by contacting us at indraprasthuniforms@gmail.com. We will respond to valid requests within a reasonable timeframe as required by applicable law.',
       },
       {
         heading: 'Contact Us',
-        body: 'For privacy-related questions, email info@indraprasthuniform.com or write to Indraprastha Uniforms, 123 Uniform Market, Lajpat Nagar, New Delhi - 110024.',
+        body: 'For privacy-related questions, email indraprasthuniforms@gmail.com or visit our outlets in Bhopal, Madhya Pradesh.',
       },
     ],
   },
@@ -88,7 +88,7 @@ export const POLICIES = {
       },
       {
         heading: 'Exchange Process',
-        body: 'To exchange a size or style, contact us at info@indraprasthuniform.com or +91 98765 43210 with your order number and reason for exchange. Approved exchanges are subject to stock availability.',
+        body: 'To exchange a size or style, contact us at indraprasthuniforms@gmail.com or +91 94256 05685 with your order number and reason for exchange. Approved exchanges are subject to stock availability.',
       },
       {
         heading: 'Refund Process',
@@ -104,7 +104,7 @@ export const POLICIES = {
       },
       {
         heading: 'Contact for Returns',
-        body: 'To initiate a return or refund, email info@indraprasthuniform.com with your order ID, photos (if applicable), and a brief description of the issue. Our support team will guide you through the next steps.',
+        body: 'To initiate a return or refund, email indraprasthuniforms@gmail.com with your order ID, photos (if applicable), and a brief description of the issue. Our support team will guide you through the next steps.',
       },
     ],
   },

@@ -13,6 +13,11 @@ export const authAPI = {
   register: (data) => API.post('/auth/register', data),
   getProfile: () => API.get('/auth/profile'),
   updateProfile: (data) => API.put('/auth/profile', data),
+  uploadAvatar: (file) => {
+    const fd = new FormData();
+    fd.append('avatar', file);
+    return API.post('/auth/profile/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
 };
 
 export const productAPI = {
@@ -42,7 +47,7 @@ export const orderAPI = {
   confirmCOD: (orderId) => API.post('/orders/confirm-cod', { orderId }),
   getMyOrders: () => API.get('/orders/my-orders'),
   getAllAdmin: () => API.get('/orders/admin/all'),
-  updateStatus: (id, status) => API.put(`/orders/admin/${id}/status`, { status }),
+  updateStatus: (id, data) => API.put(`/orders/admin/${id}/status`, data),
 };
 
 export const bulkOrderAPI = {

@@ -11,6 +11,10 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { productAPI, schoolAPI, orderAPI, bulkOrderAPI } from '../utils/api';
 import toast from 'react-hot-toast';
+import BrandLogo from '../components/common/BrandLogo';
+import LocationPicker from '../components/common/LocationPicker';
+import MapView from '../components/common/MapView';
+import { ORDER_STATUS_LABELS } from '../utils/orderStatus';
 
 const BASE_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
@@ -34,11 +38,9 @@ const Sidebar = ({ open, setOpen }) => {
         <div className="flex flex-col h-full">
           <div className="p-5 border-b border-gray-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold">IP</span>
-              </div>
+              <BrandLogo className="h-10 w-auto" showText={false} />
               <div>
-                <p className="font-display font-bold text-white text-sm">INDRAPRASTH</p>
+                <p className="font-display font-bold text-white text-sm">Indraprasth-Uniforms</p>
                 <p className="text-xs text-gray-400 tracking-widest">ADMIN</p>
               </div>
             </div>
@@ -699,6 +701,106 @@ const SchoolsPanel = () => {
   );
 };
 
+/* ─── Order Admin Update ──────────────────────────────── */
+const OrderAdminUpdate = ({ order, onSaved }) => {
+  const [form, setForm] = useState({
+    status: order.status,
+    estimatedDelivery: order.estimatedDelivery
+      ? new Date(order.estimatedDelivery).toISOString().slice(0, 10)
+      : '',
+  });
+  const [tracking, setTracking] = useState({
+    label: order.trackingLocation || '',
+    lat: order.trackingLat,
+    lng: order.trackingLng,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setForm({
+      status: order.status,
+      estimatedDelivery: order.estimatedDelivery
+        ? new Date(order.estimatedDelivery).toISOString().slice(0, 10)
+        : '',
+    });
+    setTracking({
+      label: order.trackingLocation || '',
+      lat: order.trackingLat,
+      lng: order.trackingLng,
+    });
+  }, [order._id, order.status, order.trackingLocation, order.trackingLat, order.trackingLng, order.estimatedDelivery]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload = {
+        status: form.status,
+        trackingLocation: tracking.label || '',
+        trackingLat: tracking.lat,
+        trackingLng: tracking.lng,
+        ...(form.estimatedDelivery ? { estimatedDelivery: form.estimatedDelivery } : {}),
+      };
+      const { data } = await orderAPI.updateStatus(order._id, payload);
+      onSaved(data);
+      toast.success('Order updated — customer can see changes in My Profile');
+    } catch {
+      toast.error('Update failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+
+  return (
+    <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Update Order & Tracking</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Order Status</label>
+          <select
+            value={form.status}
+            onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
+            className="input-field py-2 text-sm"
+          >
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>{ORDER_STATUS_LABELS[s] || s}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Estimated Delivery</label>
+          <input
+            type="date"
+            value={form.estimatedDelivery}
+            onChange={(e) => setForm((p) => ({ ...p, estimatedDelivery: e.target.value }))}
+            className="input-field py-2 text-sm"
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <LocationPicker
+            compact
+            label="Live tracking location (search & pin on map)"
+            helperText="Customer will see this location on the map in My Profile"
+            mapHeight="220px"
+            value={tracking.lat ? tracking : null}
+            onChange={setTracking}
+          />
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={saving}
+        className="btn-primary text-sm py-2 px-5 flex items-center gap-2"
+      >
+        {saving ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : null}
+        Save Updates
+      </button>
+    </div>
+  );
+};
+
 /* ─── Orders Panel ────────────────────────────────────── */
 const OrdersPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -713,12 +815,8 @@ const OrdersPanel = () => {
     load();
   }, []);
 
-  const updateStatus = async (id, status) => {
-    try {
-      await orderAPI.updateStatus(id, status);
-      setOrders(p => p.map(o => o._id === id ? { ...o, status } : o));
-      toast.success('Status updated');
-    } catch { toast.error('Update failed'); }
+  const updateStatus = async (id, updatedOrder) => {
+    setOrders((p) => p.map((o) => (o._id === id ? { ...o, ...updatedOrder } : o)));
   };
 
   const statusColors = {
@@ -729,8 +827,6 @@ const OrdersPanel = () => {
     delivered: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
     cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
   };
-
-  const STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
   return (
     <div className="p-6 space-y-3">
@@ -756,7 +852,9 @@ const OrdersPanel = () => {
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <span className="font-semibold text-gray-900 dark:text-white text-sm">₹{order.totalPrice.toLocaleString()}</span>
-                <span className={`badge px-2.5 py-1 text-xs rounded-lg ${statusColors[order.status] || ''}`}>{order.status}</span>
+                <span className={`badge px-2.5 py-1 text-xs rounded-lg ${statusColors[order.status] || ''}`}>
+                  {ORDER_STATUS_LABELS[order.status] || order.status}
+                </span>
                 <ChevronDown size={16} className={`text-gray-400 transition-transform ${expanded === order._id ? 'rotate-180' : ''}`} />
               </div>
             </button>
@@ -781,8 +879,13 @@ const OrdersPanel = () => {
                       <div>
                         <p className="text-xs text-gray-400 mb-1">Shipping Address</p>
                         <p className="text-gray-700 dark:text-gray-300">
-                          {order.shippingAddress?.street}, {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
+                          {order.shippingAddress?.label || `${order.shippingAddress?.street}, ${order.shippingAddress?.city}, ${order.shippingAddress?.state} - ${order.shippingAddress?.pincode}`}
                         </p>
+                        {order.shippingAddress?.lat && order.shippingAddress?.lng && (
+                          <div className="mt-3">
+                            <MapView lat={order.shippingAddress.lat} lng={order.shippingAddress.lng} height="160px" />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div>
@@ -796,13 +899,7 @@ const OrdersPanel = () => {
                         ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Update Status:</label>
-                      <select value={order.status} onChange={e => updateStatus(order._id, e.target.value)}
-                        className="input-field py-2 text-sm flex-1 max-w-xs">
-                        {STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-                      </select>
-                    </div>
+                    <OrderAdminUpdate order={order} onSaved={(data) => updateStatus(order._id, data)} />
                   </div>
                 </motion.div>
               )}

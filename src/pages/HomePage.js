@@ -8,6 +8,7 @@ import {
 import SchoolCard from '../components/common/SchoolCard';
 import ProductCard from '../components/common/ProductCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import OurOutlets from '../components/common/OurOutlets';
 import { schoolAPI, productAPI } from '../utils/api';
 
 /* ── Animation helpers ── */
@@ -363,6 +364,8 @@ const HomePage = () => {
           </SectionWrapper>
         </div>
       </section>
+
+      <OurOutlets className="bg-gray-50 dark:bg-gray-900/50" />
     </div>
   );
 };

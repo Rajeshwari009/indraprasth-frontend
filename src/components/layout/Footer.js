@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import PolicyModal from '../common/PolicyModal';
+import BrandLogo from '../common/BrandLogo';
+import { SITE } from '../../config/site';
 
 const POLICY_LINKS = [
   { key: 'privacy-policy', label: 'Privacy Policy' },
@@ -19,24 +22,38 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             {/* Brand */}
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">IP</span>
-                </div>
-                <div>
-                  <p className="font-display font-bold text-white leading-none">INDRAPRASTH</p>
-                  <p className="text-xs tracking-[0.2em] text-gray-400">UNIFORMS</p>
-                </div>
-              </div>
+              <BrandLogo className="h-14 w-auto mb-4" showText={false} />
               <p className="text-sm text-gray-400 leading-relaxed">
-                Your trusted partner for premium school uniforms. Quality, comfort and style for every student.
+                The Uniform Icons — trusted for school, college, hospital & corporate uniforms since 1975.
               </p>
               <div className="flex gap-3 mt-5">
-                {['f', 'in', 'tw'].map((label, i) => (
-                  <a key={i} href="#" className="w-9 h-9 bg-gray-800 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-colors text-xs font-bold text-gray-300">
-                    {label}
-                  </a>
-                ))}
+                <a
+                  href={SITE.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-9 h-9 bg-gray-800 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-colors text-gray-300"
+                >
+                  <FaFacebookF size={16} />
+                </a>
+                <a
+                  href={SITE.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-9 h-9 bg-gray-800 hover:bg-pink-600 rounded-lg flex items-center justify-center transition-colors text-gray-300"
+                >
+                  <FaInstagram size={16} />
+                </a>
+                <a
+                  href={`https://wa.me/${SITE.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  className="w-9 h-9 bg-gray-800 hover:bg-green-600 rounded-lg flex items-center justify-center transition-colors text-gray-300"
+                >
+                  <FaWhatsapp size={16} />
+                </a>
               </div>
             </div>
 
@@ -54,10 +71,10 @@ const Footer = () => {
 
             {/* Schools */}
             <div>
-              <h4 className="font-display font-semibold text-white mb-4">School Partners</h4>
-              <ul className="space-y-2.5">
-                {['DPS Schools', 'Indraprastha Schools', 'Kendriya Vidyalaya', 'Ryan International', 'DAV Schools', 'Modern School'].map(s => (
-                  <li key={s} className="text-sm text-gray-400">{s}</li>
+              <h4 className="font-display font-semibold text-white mb-4">We Serve</h4>
+              <ul className="space-y-2.5 text-sm text-gray-400">
+                {['School Uniforms', 'College Uniforms', 'Hospital Uniforms', 'Corporate Uniforms', 'Industrial Wear'].map(s => (
+                  <li key={s}>{s}</li>
                 ))}
               </ul>
             </div>
@@ -68,22 +85,26 @@ const Footer = () => {
               <ul className="space-y-4">
                 <li className="flex gap-3 text-sm">
                   <MapPin size={16} className="text-blue-400 mt-0.5 shrink-0" />
-                  <span className="text-gray-400">123 Uniform Market, Lajpat Nagar, New Delhi - 110024</span>
+                  <span className="text-gray-400">{SITE.city}</span>
                 </li>
                 <li className="flex gap-3 text-sm">
                   <Phone size={16} className="text-blue-400 shrink-0" />
-                  <span className="text-gray-400">+91 98765 43210</span>
+                  <a href={`tel:+91${SITE.phone}`} className="text-gray-400 hover:text-blue-400 transition-colors">
+                    +91 {SITE.phoneDisplay}
+                  </a>
                 </li>
                 <li className="flex gap-3 text-sm">
                   <Mail size={16} className="text-blue-400 shrink-0" />
-                  <span className="text-gray-400">info@indraprasthuniform.com</span>
+                  <a href={`mailto:${SITE.email}`} className="text-gray-400 hover:text-blue-400 transition-colors break-all">
+                    {SITE.email}
+                  </a>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-500">© {new Date().getFullYear()} Indraprasth Uniforms. All rights reserved.</p>
+            <p className="text-sm text-gray-500">© {new Date().getFullYear()} {SITE.name}. All rights reserved.</p>
             <div className="flex flex-wrap justify-center sm:justify-end gap-4 sm:gap-6 text-sm text-gray-500">
               {POLICY_LINKS.map(({ key, label }) => (
                 <button

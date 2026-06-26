@@ -10,21 +10,20 @@ const ProductImage = ({
   className = '',
   imgClassName = 'w-full h-full object-cover',
   showPlaceholderIcon = true,
-  fallbackIndex = 0,
 }) => {
   const fallbacks = getCategoryFallbacks(category);
   const primary = getAssetUrl(src);
-  const sources = primary
-    ? [primary, ...fallbacks.filter((u) => u !== primary)]
-    : fallbacks;
+  // Only use stock fallbacks when the product has no uploaded image.
+  // If an upload URL fails (404, server restart), show placeholder — not unrelated stock photos.
+  const sources = primary ? [primary] : fallbacks;
 
-  const [index, setIndex] = useState(fallbackIndex);
+  const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    setIndex(fallbackIndex);
+    setIndex(0);
     setFailed(false);
-  }, [src, category, fallbackIndex]);
+  }, [src, category]);
 
   const handleError = () => {
     if (index < sources.length - 1) {

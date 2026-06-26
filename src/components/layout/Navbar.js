@@ -5,6 +5,7 @@ import { ShoppingCart, Menu, X, Sun, Moon, User, LogOut, Settings, ChevronDown }
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import BrandLogo from '../common/BrandLogo';
 
 const Navbar = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -58,18 +59,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-blue-500/40 transition-shadow">
-              <span className="text-white font-bold text-lg">IP</span>
-            </div>
-            <div className="hidden sm:block">
-              <p className={`font-display font-bold text-lg leading-none transition-colors ${isTransparent ? 'text-white' : 'text-blue-800 dark:text-blue-400'}`}>
-                INDRAPRASTH
-              </p>
-              <p className={`text-xs font-medium tracking-[0.2em] transition-colors ${isTransparent ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'}`}>
-                UNIFORMS
-              </p>
-            </div>
+          <Link to="/" className="group">
+            <BrandLogo
+              className="h-11 md:h-12 w-auto"
+              showText={false}
+            />
           </Link>
 
           {/* Desktop Nav */}
